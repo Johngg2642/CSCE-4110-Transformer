@@ -6,7 +6,10 @@ Standalone PyTorch script: a basic Transformer plus width/depth expansion utilit
 - expand_width(small_model): 256-dim -> 512-dim, original weights in the upper-left
   block of every tensor. New entries are either all zero (init="zero") or
   "random reads / zero writes" so the added width is trainable (init="trainable").
-- expand_depth(model): 4 layers -> 8 layers, layer i copied to layers 2i and 2i+1.
+- expand_depth(model, method="identity"): 4 layers -> 8 layers via:
+    * "identity" (default): layer i -> 2i (copy) and 2i+1 (zero-residual identity pass-through).
+    * "duplicate": layer i copied to layers 2i and 2i+1.
+    * "stack": layers 0..N-1 copied to 0..N-1 and N..2N-1 (Gong et al., ICML 2019).
 
 No data loading or training loops are included.
 """
@@ -204,13 +207,27 @@ def expand_width(
 # Depth expansion
 # --------------------------------------------------------------------------- #
 @torch.no_grad()
-def expand_depth(model: SimpleTransformer) -> SimpleTransformer:
-    """Double the number of layers (default 4 -> 8) by duplicating each layer.
+def expand_depth(model: SimpleTransformer, method: str = "identity") -> SimpleTransformer:
+    """Double the number of layers (default 4 -> 8).
 
-    Layer i of the source model is copied to layers 2i and 2i+1 of the new model
-    (0 -> 0,1; 1 -> 2,3; 2 -> 4,5; 3 -> 6,7). Embeddings, final LayerNorm and
-    LM head are copied unchanged.
+    Supported deepening methods:
+    - 'identity' (default): Function-preserving interleaved duplication.
+      Layer 2i gets a direct copy of layer i. Layer 2i+1 also copies layer i,
+      but its output projections (attn.out_proj and ffn[2]) are initialized to zero.
+      Since Transformer blocks use residual connections (x + Sublayer(LN(x))),
+      sublayers with zero output projections compute x + 0 = x (identity/pass-through).
+      This preserves the model's exact input-output mapping at growth time while
+      allowing the new depth to receive gradients and specialize during training.
+
+    - 'duplicate': Interleaved layer duplication (layer i copied to 2i and 2i+1).
+      Duplicates the residual contributions of each layer, causing a noticeable
+      loss jump upon growth.
+
+    - 'stack': Block stacking (Gong et al., ICML 2019).
+      Copies the entire N-layer stack consecutively: layers 0..N-1 are copied to
+      0..N-1 and again to N..2N-1.
     """
+    assert method in ("identity", "duplicate", "stack"), f"unknown depth method: {method!r}"
     deep_model = SimpleTransformer(**_config(model, num_layers=2 * model.num_layers))
     deep_model.to(next(model.parameters()).device)
 
@@ -220,10 +237,35 @@ def expand_depth(model: SimpleTransformer) -> SimpleTransformer:
     deep_model.ln_f.load_state_dict(model.ln_f.state_dict())
     deep_model.lm_head.load_state_dict(model.lm_head.state_dict())
 
-    # Transformer blocks: each source layer feeds two consecutive target layers.
-    for i, src_layer in enumerate(model.layers):
-        for j in (2 * i, 2 * i + 1):
-            deep_model.layers[j].load_state_dict(copy.deepcopy(src_layer.state_dict()))
+    num_src_layers = len(model.layers)
+
+    if method == "stack":
+        # First half [0..N-1], Second half [N..2N-1]
+        for i, src_layer in enumerate(model.layers):
+            deep_model.layers[i].load_state_dict(copy.deepcopy(src_layer.state_dict()))
+            deep_model.layers[num_src_layers + i].load_state_dict(copy.deepcopy(src_layer.state_dict()))
+
+    elif method == "duplicate":
+        # Interleaved [0->0,1; 1->2,3; ...]
+        for i, src_layer in enumerate(model.layers):
+            for j in (2 * i, 2 * i + 1):
+                deep_model.layers[j].load_state_dict(copy.deepcopy(src_layer.state_dict()))
+
+    elif method == "identity":
+        # Interleaved with identity pass-through on the odd layers
+        for i, src_layer in enumerate(model.layers):
+            # Layer 2i: exact copy
+            deep_model.layers[2 * i].load_state_dict(copy.deepcopy(src_layer.state_dict()))
+
+            # Layer 2i+1: copy, but zero out output projections to act as identity
+            odd_layer = deep_model.layers[2 * i + 1]
+            odd_layer.load_state_dict(copy.deepcopy(src_layer.state_dict()))
+            nn.init.zeros_(odd_layer.attn.out_proj.weight)
+            if odd_layer.attn.out_proj.bias is not None:
+                nn.init.zeros_(odd_layer.attn.out_proj.bias)
+            nn.init.zeros_(odd_layer.ffn[2].weight)
+            if odd_layer.ffn[2].bias is not None:
+                nn.init.zeros_(odd_layer.ffn[2].bias)
 
     return deep_model
 
@@ -316,21 +358,59 @@ if __name__ == "__main__":
     print(f"[OK] Logit drift vs small model (mean |diff|): init='zero' {drift_zero:.4f}, "
           f"init='trainable' {drift_train:.4f} -- trainable adds negligible drift")
 
-    # 3) Depth expansion: 4 -> 8 layers.
-    large = expand_depth(wide).eval()
-    assert large.hidden_dim == 512 and large.num_layers == 8
+    # 3) Depth expansion: 4 -> 8 layers across all three deepening methods.
+    with torch.no_grad():
+        out_wide = wide(dummy)
+
+    # 3a) method="duplicate": layer i -> 2i, 2i+1
+    large_dup = expand_depth(wide, method="duplicate").eval()
+    assert large_dup.hidden_dim == 512 and large_dup.num_layers == 8
     for i in range(wide.num_layers):
         for j in (2 * i, 2 * i + 1):
             for (n_src, p_src), (n_dst, p_dst) in zip(
-                wide.layers[i].state_dict().items(), large.layers[j].state_dict().items()
+                wide.layers[i].state_dict().items(), large_dup.layers[j].state_dict().items()
             ):
                 assert n_src == n_dst and torch.equal(p_src, p_dst)
-    print(f"[OK] Depth expansion  (dim={large.hidden_dim}, layers={large.num_layers}, "
-          f"params={_num_params(large):,}) -- layer i -> layers 2i, 2i+1 verified")
+    print(f"[OK] Depth expansion, method='duplicate' (dim={large_dup.hidden_dim}, "
+          f"layers={large_dup.num_layers}, params={_num_params(large_dup):,}) "
+          f"-- layer i -> 2i, 2i+1 verified")
 
-    # 4) Same dummy tensor through the large model.
+    # 3b) method="stack": layers 0..3 -> 0..3 and 4..7
+    large_stack = expand_depth(wide, method="stack").eval()
+    assert large_stack.hidden_dim == 512 and large_stack.num_layers == 8
+    for i in range(wide.num_layers):
+        for j in (i, wide.num_layers + i):
+            for (n_src, p_src), (n_dst, p_dst) in zip(
+                wide.layers[i].state_dict().items(), large_stack.layers[j].state_dict().items()
+            ):
+                assert n_src == n_dst and torch.equal(p_src, p_dst)
+    print(f"[OK] Depth expansion, method='stack'     (dim={large_stack.hidden_dim}, "
+          f"layers={large_stack.num_layers}, params={_num_params(large_stack):,}) "
+          f"-- layers 0..N-1 stacked twice verified")
+
+    # 3c) method="identity" (default): exact function preservation + live odd-layer grads.
+    large = expand_depth(wide, method="identity").eval()
+    assert large.hidden_dim == 512 and large.num_layers == 8
     with torch.no_grad():
         out_large = large(dummy)
+        depth_drift_id = (out_large - out_wide).abs().max().item()
+        depth_drift_dup = (large_dup(dummy) - out_wide).abs().max().item()
+        depth_drift_stack = (large_stack(dummy) - out_wide).abs().max().item()
+    assert depth_drift_id < 1e-6, f"expected exact function preservation, got {depth_drift_id}"
+    # Verify odd layers receive non-zero gradient on the first backward pass.
+    large_train = copy.deepcopy(large).train()
+    large_train.zero_grad()
+    tgt = torch.randint(0, vocab_size, (batch_size, seq_len))
+    F.cross_entropy(large_train(dummy).reshape(-1, vocab_size), tgt.reshape(-1)).backward()
+    odd_attn_g = large_train.layers[1].attn.out_proj.weight.grad.abs().sum().item()
+    odd_ffn_g = large_train.layers[1].ffn[2].weight.grad.abs().sum().item()
+    assert odd_attn_g > 0 and odd_ffn_g > 0, "odd identity layers failed to receive gradients"
+    print(f"[OK] Depth expansion, method='identity'  (dim={large.hidden_dim}, "
+          f"layers={large.num_layers}, params={_num_params(large):,}) "
+          f"-- exact function preservation (max |diff|={depth_drift_id:.2e} vs "
+          f"dup={depth_drift_dup:.2f}, stack={depth_drift_stack:.2f}) & live odd-layer grads")
+
+    # 4) Same dummy tensor through the large model.
     assert out_large.shape == (batch_size, seq_len, vocab_size)
     print(f"[OK] Large model forward pass on the same dummy input -> output {tuple(out_large.shape)}")
 

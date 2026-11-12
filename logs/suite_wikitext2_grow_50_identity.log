@@ -1,0 +1,53 @@
+[SETUP] Using device: mps
+[DATA] Loading wikitext2 and GPT-2 tokenizer ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Tokenizing train:   0%|          | 0/36718 [00:00<?, ? examples/s]Tokenizing train:  14%|█▎        | 5000/36718 [00:00<00:00, 36520.61 examples/s]Tokenizing train:  30%|██▉       | 11000/36718 [00:00<00:00, 42401.94 examples/s]Tokenizing train:  46%|████▋     | 17000/36718 [00:00<00:00, 35285.16 examples/s]Tokenizing train:  63%|██████▎   | 23000/36718 [00:00<00:00, 39713.27 examples/s]Tokenizing train:  79%|███████▉  | 29000/36718 [00:00<00:00, 43012.30 examples/s]Tokenizing train:  93%|█████████▎| 34000/36718 [00:00<00:00, 40331.35 examples/s]Tokenizing train: 100%|██████████| 36718/36718 [00:00<00:00, 40515.39 examples/s]
+[DATA]   train     :  2,391,884 tokens -> 4,671 sequences of length 512
+Tokenizing validation:   0%|          | 0/3760 [00:00<?, ? examples/s]Tokenizing validation: 100%|██████████| 3760/3760 [00:00<00:00, 43794.28 examples/s]
+[DATA]   validation:    247,289 tokens -> 482 sequences of length 512
+Tokenizing test:   0%|          | 0/4358 [00:00<?, ? examples/s]Tokenizing test: 100%|██████████| 4358/4358 [00:00<00:00, 47073.37 examples/s]
+[DATA]   test      :    283,287 tokens -> 553 sequences of length 512
+[DATA] Cached tokenized splits to data/wikitext2_gpt2_seq512.pt
+[DATA] Dataset loaded. vocab_size=50,257, train batches/epoch=1,167, val batches=121, test batches=139
+[MODEL] Initialized (grow mode): d=256, L=4, params=29.07M (non-embedding 16.08M)
+[SETUP] Training for 300 steps; growth trigger at step 150 (50%) using width-init='trainable', depth-method='identity'
+[TRAIN] step      1/300 | d=256 L=4 | loss 10.9880 | lr 3.00e-06 | FLOPs 1.975e+11 (0.20 TF) | 2,732 tok/s
+[TRAIN] step     50/300 | d=256 L=4 | loss 9.4814 | lr 1.50e-04 | FLOPs 9.877e+12 (9.88 TF) | 3,922 tok/s
+[EVAL] periodic               step     50 | loss 9.3071 | ppl  11015.92 | err  95.26% | FLOPs 9.877e+12 (9.88 TF)
+[TRAIN] step    100/300 | d=256 L=4 | loss 7.6471 | lr 3.00e-04 | FLOPs 1.975e+13 (19.75 TF) | 3,881 tok/s
+[EVAL] periodic               step    100 | loss 7.5214 | ppl   1847.22 | err  94.38% | FLOPs 1.975e+13 (19.75 TF)
+[TRAIN] step    150/300 | d=256 L=4 | loss 7.0717 | lr 3.00e-04 | FLOPs 2.963e+13 (29.63 TF) | 3,983 tok/s
+[EVAL] periodic               step    150 | loss 7.1903 | ppl   1326.46 | err  87.78% | FLOPs 2.963e+13 (29.63 TF)
+
+==============================================================================
+[GROWTH] Step 150: pausing training for model growth
+==============================================================================
+[EVAL] pre-growth             step    150 | loss 7.1903 | ppl   1326.46 | err  87.78% | FLOPs 2.963e+13 (29.63 TF)
+[GROWTH] Before: d=256, L=4, params=29.07M (non-embedding 16.08M)
+[GROWTH] After expand_width (init='trainable'): d=512, L=4
+[GROWTH] After expand_depth (method='identity'): d=512, L=8, params=77.00M (non-embedding 51.00M)
+[GROWTH] Optimizer re-initialized for large model parameters
+[EVAL] post-growth (step 0)   step    150 | loss 7.9613 | ppl   2867.92 | err  87.75% | FLOPs 2.963e+13 (29.63 TF)
+[GROWTH] Loss change from growth: +0.7711 (token err 87.78% -> 87.75%)
+==============================================================================
+
+[TRAIN] step    200/300 | d=512 L=8 | loss 7.0157 | lr 1.50e-04 | FLOPs 6.097e+13 (60.97 TF) | 3,057 tok/s
+[EVAL] periodic               step    200 | loss 7.1320 | ppl   1251.40 | err  87.45% | FLOPs 6.097e+13 (60.97 TF)
+[TRAIN] step    250/300 | d=512 L=8 | loss 6.9478 | lr 3.00e-04 | FLOPs 9.230e+13 (92.30 TF) | 2,762 tok/s
+[EVAL] periodic               step    250 | loss 7.0206 | ppl   1119.49 | err  86.98% | FLOPs 9.230e+13 (92.30 TF)
+[TRAIN] step    300/300 | d=512 L=8 | loss 7.0429 | lr 3.00e-04 | FLOPs 1.236e+14 (123.64 TF) | 2,617 tok/s
+[EVAL] final (val)            step    300 | loss 6.8833 | ppl    975.79 | err  86.09% | FLOPs 1.236e+14 (123.64 TF)
+[EVAL] final (test)           step    300 | loss 6.9080 | ppl   1000.20 | err  87.23% | FLOPs 1.236e+14 (123.64 TF)
+
+==============================================================================
+SUMMARY
+==============================================================================
+Dataset: wikitext2 | Mode: grow | Growth frac: 0.5 | Width init: trainable | Depth method: identity
+Final model: d=512, L=8, params=77.00M (non-embedding 51.00M)
+Steps: 300 | Tokens seen: 614,400 | Wall time: 4.07 min | Total train FLOPs: 1.236e+14 (123.64 TFLOPs)
+stage                    step      loss        ppl     err%    TFLOPs
+pre-growth                150    7.1903    1326.46   87.78%     29.63
+post-growth (step 0)      150    7.9613    2867.92   87.75%     29.63
+final (val)               300    6.8833     975.79   86.09%    123.64
+final (test)              300    6.9080    1000.20   87.23%    123.64
+[SAVE] Wrote metrics summary to logs/metrics_identity.json
