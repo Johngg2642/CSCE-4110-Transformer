@@ -1,0 +1,44 @@
+[SETUP] Using device: mps
+[DATA] Loading wikitext-2-raw-v1 and GPT-2 tokenizer ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[DATA]   train     :  2,391,884 tokens -> 4,671 sequences of length 512
+[DATA]   validation:    247,289 tokens -> 482 sequences of length 512
+[DATA] Dataset loaded. vocab_size=50,257, train batches/epoch=1,167, val batches=121
+[MODEL] Initialized small model: d=256, L=4, params=29.07M (non-embedding 16.08M)
+[SETUP] Training for 300 steps; growth trigger at step 150 (50%)
+[TRAIN] step      1/300 | d=256 L=4 | loss 10.9880 | lr 3.00e-06 | FLOPs 1.975e+11 | 3,623 tok/s
+[TRAIN] step     50/300 | d=256 L=4 | loss 9.4814 | lr 1.50e-04 | FLOPs 9.877e+12 | 4,770 tok/s
+[EVAL] periodic               step     50 | val_loss 9.3071 | ppl  11015.92 | cumulative train FLOPs 9.877e+12
+[TRAIN] step    100/300 | d=256 L=4 | loss 7.6471 | lr 3.00e-04 | FLOPs 1.975e+13 | 4,623 tok/s
+[EVAL] periodic               step    100 | val_loss 7.5214 | ppl   1847.22 | cumulative train FLOPs 1.975e+13
+[TRAIN] step    150/300 | d=256 L=4 | loss 7.0717 | lr 3.00e-04 | FLOPs 2.963e+13 | 4,597 tok/s
+[EVAL] periodic               step    150 | val_loss 7.1903 | ppl   1326.46 | cumulative train FLOPs 2.963e+13
+
+==============================================================================
+[GROWTH] Step 150: pausing training for model growth
+==============================================================================
+[EVAL] pre-growth             step    150 | val_loss 7.1903 | ppl   1326.46 | cumulative train FLOPs 2.963e+13
+[GROWTH] Before: d=256, L=4, params=29.07M (non-embedding 16.08M)
+[GROWTH] After expand_width (init='trainable'): d=512, L=4
+[GROWTH] After expand_depth: d=512, L=8, params=77.00M (non-embedding 51.00M)
+[GROWTH] Optimizer re-initialized for large model parameters
+[EVAL] post-growth (step 0)   step    150 | val_loss 7.9920 | ppl   2957.12 | cumulative train FLOPs 2.963e+13
+[GROWTH] Loss change from growth: +0.8017
+==============================================================================
+
+[TRAIN] step    200/300 | d=512 L=8 | loss 7.0387 | lr 1.50e-04 | FLOPs 6.097e+13 | 3,268 tok/s
+[EVAL] periodic               step    200 | val_loss 7.1473 | ppl   1270.69 | cumulative train FLOPs 6.097e+13
+[TRAIN] step    250/300 | d=512 L=8 | loss 6.9588 | lr 3.00e-04 | FLOPs 9.230e+13 | 2,900 tok/s
+[EVAL] periodic               step    250 | val_loss 7.0382 | ppl   1139.28 | cumulative train FLOPs 9.230e+13
+[TRAIN] step    300/300 | d=512 L=8 | loss 7.0574 | lr 3.00e-04 | FLOPs 1.236e+14 | 2,650 tok/s
+[EVAL] final                  step    300 | val_loss 6.8992 | ppl    991.46 | cumulative train FLOPs 1.236e+14
+
+==============================================================================
+SUMMARY
+==============================================================================
+Final model: d=512, L=8, params=77.00M (non-embedding 51.00M)
+Tokens seen: 614,400 | Wall time: 3.9 min | Total train FLOPs: 1.236e+14 (123.64 TFLOPs)
+stage                    step  val_loss        ppl       FLOPs
+pre-growth                150    7.1903    1326.46   2.963e+13
+post-growth (step 0)      150    7.9920    2957.12   2.963e+13
+final                     300    6.8992     991.46   1.236e+14
