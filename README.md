@@ -5,9 +5,9 @@ PyTorch implementation of dynamic model growth for cost-efficient Large Language
 This repository contains the codebase for our project on cost-efficient Transformer training via dynamic architecture expansion.
 
 ## Team
-* **Person 1:** Data Pipeline & Baselines
+* **Ifunayal:** Data Pipeline & Baselines
 * **John Greig:** Model Growth Architecture
-* **Person 3:** Evaluation & Benchmarking 
+* **Oneal Egwuatu:** Evaluation & Benchmarking 
 
 ## Repository Structure
 * `model_growth.py`: Core PyTorch engine for progressive dimensionality growth (`expand_width` with `trainable` / `zero` init) and layer deepening (`expand_depth` with `identity`, `duplicate`, and `stack` methods).

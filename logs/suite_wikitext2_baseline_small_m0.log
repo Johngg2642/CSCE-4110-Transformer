@@ -1,0 +1,33 @@
+[SETUP] Using device: mps
+[DATA] Loading cached tokenized dataset from data/wikitext2_gpt2_seq512.pt ...
+[DATA]   train     :  2,391,552 tokens -> 4,671 sequences of length 512
+[DATA]   validation:    246,784 tokens -> 482 sequences of length 512
+[DATA]   test      :    283,136 tokens -> 553 sequences of length 512
+[DATA] Dataset loaded. vocab_size=50,257, train batches/epoch=1,167, val batches=121, test batches=139
+[MODEL] Initialized (small mode): d=256, L=4, params=29.07M (non-embedding 16.08M)
+[SETUP] Mode='small': training static model for 300 steps (no growth transition)
+[TRAIN] step      1/300 | d=256 L=4 | loss 10.9880 | lr 3.00e-06 | FLOPs 1.975e+11 (0.20 TF) | 1,974 tok/s
+[TRAIN] step     50/300 | d=256 L=4 | loss 9.4814 | lr 1.50e-04 | FLOPs 9.877e+12 (9.88 TF) | 4,591 tok/s
+[EVAL] periodic               step     50 | loss 9.3071 | ppl  11015.92 | err  95.26% | FLOPs 9.877e+12 (9.88 TF)
+[TRAIN] step    100/300 | d=256 L=4 | loss 7.6471 | lr 3.00e-04 | FLOPs 1.975e+13 (19.75 TF) | 4,420 tok/s
+[EVAL] periodic               step    100 | loss 7.5214 | ppl   1847.22 | err  94.38% | FLOPs 1.975e+13 (19.75 TF)
+[TRAIN] step    150/300 | d=256 L=4 | loss 7.0717 | lr 3.00e-04 | FLOPs 2.963e+13 (29.63 TF) | 4,359 tok/s
+[EVAL] periodic               step    150 | loss 7.1903 | ppl   1326.46 | err  87.78% | FLOPs 2.963e+13 (29.63 TF)
+[TRAIN] step    200/300 | d=256 L=4 | loss 6.9503 | lr 3.00e-04 | FLOPs 3.951e+13 (39.51 TF) | 4,366 tok/s
+[EVAL] periodic               step    200 | loss 7.0644 | ppl   1169.61 | err  87.14% | FLOPs 3.951e+13 (39.51 TF)
+[TRAIN] step    250/300 | d=256 L=4 | loss 6.9052 | lr 3.00e-04 | FLOPs 4.938e+13 (49.38 TF) | 4,323 tok/s
+[EVAL] periodic               step    250 | loss 6.9798 | ppl   1074.75 | err  86.76% | FLOPs 4.938e+13 (49.38 TF)
+[TRAIN] step    300/300 | d=256 L=4 | loss 7.0818 | lr 3.00e-04 | FLOPs 5.926e+13 (59.26 TF) | 4,359 tok/s
+[EVAL] final (val)            step    300 | loss 6.9077 | ppl    999.94 | err  86.49% | FLOPs 5.926e+13 (59.26 TF)
+[EVAL] final (test)           step    300 | loss 6.9400 | ppl   1032.79 | err  87.44% | FLOPs 5.926e+13 (59.26 TF)
+
+==============================================================================
+SUMMARY
+==============================================================================
+Dataset: wikitext2 | Mode: small | Growth frac: 0.5 | Width init: trainable | Depth method: identity
+Final model: d=256, L=4, params=29.07M (non-embedding 16.08M)
+Steps: 300 | Tokens seen: 614,400 | Wall time: 2.43 min | Total train FLOPs: 5.926e+13 (59.26 TFLOPs)
+stage                    step      loss        ppl     err%    TFLOPs
+final (val)               300    6.9077     999.94   86.49%     59.26
+final (test)              300    6.9400    1032.79   87.44%     59.26
+[SAVE] Wrote metrics summary to logs/suite_wikitext2_baseline_small_m0.json

@@ -1,0 +1,48 @@
+[SETUP] Using device: mps
+[DATA] Loading cached tokenized dataset from data/wikitext2_gpt2_seq512.pt ...
+[DATA]   train     :  2,391,552 tokens -> 4,671 sequences of length 512
+[DATA]   validation:    246,784 tokens -> 482 sequences of length 512
+[DATA]   test      :    283,136 tokens -> 553 sequences of length 512
+[DATA] Dataset loaded. vocab_size=50,257, train batches/epoch=1,167, val batches=121, test batches=139
+[MODEL] Initialized (grow mode): d=256, L=4, params=29.07M (non-embedding 16.08M)
+[SETUP] Training for 300 steps; growth trigger at step 150 (50%) using width-init='trainable', depth-method='stack'
+[TRAIN] step      1/300 | d=256 L=4 | loss 10.9880 | lr 3.00e-06 | FLOPs 1.975e+11 (0.20 TF) | 4,326 tok/s
+[TRAIN] step     50/300 | d=256 L=4 | loss 9.4814 | lr 1.50e-04 | FLOPs 9.877e+12 (9.88 TF) | 5,049 tok/s
+[EVAL] periodic               step     50 | loss 9.3071 | ppl  11015.92 | err  95.26% | FLOPs 9.877e+12 (9.88 TF)
+[TRAIN] step    100/300 | d=256 L=4 | loss 7.6471 | lr 3.00e-04 | FLOPs 1.975e+13 (19.75 TF) | 4,807 tok/s
+[EVAL] periodic               step    100 | loss 7.5214 | ppl   1847.22 | err  94.38% | FLOPs 1.975e+13 (19.75 TF)
+[TRAIN] step    150/300 | d=256 L=4 | loss 7.0717 | lr 3.00e-04 | FLOPs 2.963e+13 (29.63 TF) | 4,735 tok/s
+[EVAL] periodic               step    150 | loss 7.1903 | ppl   1326.46 | err  87.78% | FLOPs 2.963e+13 (29.63 TF)
+
+==============================================================================
+[GROWTH] Step 150: pausing training for model growth
+==============================================================================
+[EVAL] pre-growth             step    150 | loss 7.1903 | ppl   1326.46 | err  87.78% | FLOPs 2.963e+13 (29.63 TF)
+[GROWTH] Before: d=256, L=4, params=29.07M (non-embedding 16.08M)
+[GROWTH] After expand_width (init='trainable'): d=512, L=4
+[GROWTH] After expand_depth (method='stack'): d=512, L=8, params=77.00M (non-embedding 51.00M)
+[GROWTH] Optimizer re-initialized for large model parameters
+[EVAL] post-growth (step 0)   step    150 | loss 8.0343 | ppl   3085.03 | err  87.97% | FLOPs 2.963e+13 (29.63 TF)
+[GROWTH] Loss change from growth: +0.8440 (token err 87.78% -> 87.97%)
+==============================================================================
+
+[TRAIN] step    200/300 | d=512 L=8 | loss 7.0426 | lr 1.50e-04 | FLOPs 6.097e+13 (60.97 TF) | 3,212 tok/s
+[EVAL] periodic               step    200 | loss 7.1498 | ppl   1273.84 | err  87.27% | FLOPs 6.097e+13 (60.97 TF)
+[TRAIN] step    250/300 | d=512 L=8 | loss 6.9570 | lr 3.00e-04 | FLOPs 9.230e+13 (92.30 TF) | 2,785 tok/s
+[EVAL] periodic               step    250 | loss 7.0340 | ppl   1134.58 | err  87.30% | FLOPs 9.230e+13 (92.30 TF)
+[TRAIN] step    300/300 | d=512 L=8 | loss 7.0549 | lr 3.00e-04 | FLOPs 1.236e+14 (123.64 TF) | 2,555 tok/s
+[EVAL] final (val)            step    300 | loss 6.8984 | ppl    990.72 | err  86.30% | FLOPs 1.236e+14 (123.64 TF)
+[EVAL] final (test)           step    300 | loss 6.9283 | ppl   1020.71 | err  87.36% | FLOPs 1.236e+14 (123.64 TF)
+
+==============================================================================
+SUMMARY
+==============================================================================
+Dataset: wikitext2 | Mode: grow | Growth frac: 0.5 | Width init: trainable | Depth method: stack
+Final model: d=512, L=8, params=77.00M (non-embedding 51.00M)
+Steps: 300 | Tokens seen: 614,400 | Wall time: 4.16 min | Total train FLOPs: 1.236e+14 (123.64 TFLOPs)
+stage                    step      loss        ppl     err%    TFLOPs
+pre-growth                150    7.1903    1326.46   87.78%     29.63
+post-growth (step 0)      150    8.0343    3085.03   87.97%     29.63
+final (val)               300    6.8984     990.72   86.30%    123.64
+final (test)              300    6.9283    1020.71   87.36%    123.64
+[SAVE] Wrote metrics summary to logs/suite_wikitext2_grow_50_stack.json

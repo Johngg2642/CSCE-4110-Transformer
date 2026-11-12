@@ -1,0 +1,112 @@
+{
+  "args": {
+    "dataset": "wikitext2",
+    "data_dir": "data",
+    "seq_len": 512,
+    "batch_size": 4,
+    "mode": "large",
+    "total_steps": 300,
+    "max_tflops": null,
+    "growth_frac": 0.5,
+    "small_dim": 256,
+    "small_layers": 4,
+    "large_dim": 512,
+    "width_init": "trainable",
+    "depth_method": "identity",
+    "lr": 0.0003,
+    "weight_decay": 0.01,
+    "warmup_steps": 100,
+    "grad_clip": 1.0,
+    "log_interval": 50,
+    "eval_interval": 50,
+    "eval_batches": 30,
+    "metrics_out": "logs/suite_wikitext2_baseline_large_M0.json",
+    "num_workers": 0,
+    "seed": 42
+  },
+  "device": "mps",
+  "steps_completed": 300,
+  "tokens_seen": 614400,
+  "wall_time_sec": 361.82,
+  "total_flops": 188013540556800.0,
+  "total_tflops": 188.0135,
+  "growth_loss_delta": null,
+  "final_val_loss": 6.634686,
+  "final_val_ppl": 761.0403,
+  "final_val_token_err": 0.841211,
+  "final_test_loss": 6.672817,
+  "final_test_ppl": 790.6198,
+  "final_test_token_err": 0.850293,
+  "eval_records": [
+    {
+      "stage": "periodic",
+      "step": 50,
+      "loss": 8.19451,
+      "ppl": 3621.0167,
+      "token_err": 0.945654,
+      "flops": 31335590092800.0,
+      "tflops": 31.3356,
+      "elapsed_sec": 55.76
+    },
+    {
+      "stage": "periodic",
+      "step": 100,
+      "loss": 7.11645,
+      "ppl": 1232.0682,
+      "token_err": 0.871403,
+      "flops": 62671180185600.0,
+      "tflops": 62.6712,
+      "elapsed_sec": 114.72
+    },
+    {
+      "stage": "periodic",
+      "step": 150,
+      "loss": 6.928902,
+      "ppl": 1021.3723,
+      "token_err": 0.858138,
+      "flops": 94006770278400.0,
+      "tflops": 94.0068,
+      "elapsed_sec": 201.56
+    },
+    {
+      "stage": "periodic",
+      "step": 200,
+      "loss": 6.811422,
+      "ppl": 908.1609,
+      "token_err": 0.854036,
+      "flops": 125342360371200.0,
+      "tflops": 125.3424,
+      "elapsed_sec": 254.96
+    },
+    {
+      "stage": "periodic",
+      "step": 250,
+      "loss": 6.707469,
+      "ppl": 818.4966,
+      "token_err": 0.853646,
+      "flops": 156677950464000.0,
+      "tflops": 156.678,
+      "elapsed_sec": 307.73
+    },
+    {
+      "stage": "final (val)",
+      "step": 300,
+      "loss": 6.634686,
+      "ppl": 761.0403,
+      "token_err": 0.841211,
+      "flops": 188013540556800.0,
+      "tflops": 188.0135,
+      "elapsed_sec": 357.84
+    },
+    {
+      "stage": "final (test)",
+      "step": 300,
+      "loss": 6.672817,
+      "ppl": 790.6198,
+      "token_err": 0.850293,
+      "flops": 188013540556800.0,
+      "tflops": 188.0135,
+      "elapsed_sec": 361.82
+    }
+  ]
+}

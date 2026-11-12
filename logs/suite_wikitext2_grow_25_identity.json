@@ -1,0 +1,132 @@
+{
+  "args": {
+    "dataset": "wikitext2",
+    "data_dir": "data",
+    "seq_len": 512,
+    "batch_size": 4,
+    "mode": "grow",
+    "total_steps": 300,
+    "max_tflops": null,
+    "growth_frac": 0.25,
+    "small_dim": 256,
+    "small_layers": 4,
+    "large_dim": 512,
+    "width_init": "trainable",
+    "depth_method": "identity",
+    "lr": 0.0003,
+    "weight_decay": 0.01,
+    "warmup_steps": 100,
+    "grad_clip": 1.0,
+    "log_interval": 50,
+    "eval_interval": 50,
+    "eval_batches": 30,
+    "metrics_out": "logs/suite_wikitext2_grow_25_identity.json",
+    "num_workers": 0,
+    "seed": 42
+  },
+  "device": "mps",
+  "steps_completed": 300,
+  "tokens_seen": 614400,
+  "wall_time_sec": 296.81,
+  "total_flops": 155825429299200.0,
+  "total_tflops": 155.8254,
+  "growth_loss_delta": -0.036317,
+  "final_val_loss": 6.764575,
+  "final_val_ppl": 866.5978,
+  "final_val_token_err": 0.852083,
+  "final_test_loss": 6.786921,
+  "final_test_ppl": 886.1806,
+  "final_test_token_err": 0.862337,
+  "eval_records": [
+    {
+      "stage": "periodic",
+      "step": 50,
+      "loss": 9.307097,
+      "ppl": 11015.9234,
+      "token_err": 0.95262,
+      "flops": 9876849254400.0,
+      "tflops": 9.8768,
+      "elapsed_sec": 22.91
+    },
+    {
+      "stage": "pre-growth",
+      "step": 75,
+      "loss": 8.176099,
+      "ppl": 3554.9587,
+      "token_err": 0.951204,
+      "flops": 14815273881600.0,
+      "tflops": 14.8153,
+      "elapsed_sec": 35.14
+    },
+    {
+      "stage": "post-growth (step 0)",
+      "step": 75,
+      "loss": 8.139782,
+      "ppl": 3428.1692,
+      "token_err": 0.952702,
+      "flops": 14815273881600.0,
+      "tflops": 14.8153,
+      "elapsed_sec": 40.11
+    },
+    {
+      "stage": "periodic",
+      "step": 100,
+      "loss": 7.637183,
+      "ppl": 2073.894,
+      "token_err": 0.945557,
+      "flops": 30483068928000.0,
+      "tflops": 30.4831,
+      "elapsed_sec": 73.7
+    },
+    {
+      "stage": "periodic",
+      "step": 150,
+      "loss": 7.142564,
+      "ppl": 1264.6666,
+      "token_err": 0.871598,
+      "flops": 61818659020800.0,
+      "tflops": 61.8187,
+      "elapsed_sec": 131.93
+    },
+    {
+      "stage": "periodic",
+      "step": 200,
+      "loss": 6.986326,
+      "ppl": 1081.7403,
+      "token_err": 0.870068,
+      "flops": 93154249113600.0,
+      "tflops": 93.1542,
+      "elapsed_sec": 184.64
+    },
+    {
+      "stage": "periodic",
+      "step": 250,
+      "loss": 6.875186,
+      "ppl": 967.9554,
+      "token_err": 0.860628,
+      "flops": 124489839206400.0,
+      "tflops": 124.4898,
+      "elapsed_sec": 238.67
+    },
+    {
+      "stage": "final (val)",
+      "step": 300,
+      "loss": 6.764575,
+      "ppl": 866.5978,
+      "token_err": 0.852083,
+      "flops": 155825429299200.0,
+      "tflops": 155.8254,
+      "elapsed_sec": 292.58
+    },
+    {
+      "stage": "final (test)",
+      "step": 300,
+      "loss": 6.786921,
+      "ppl": 886.1806,
+      "token_err": 0.862337,
+      "flops": 155825429299200.0,
+      "tflops": 155.8254,
+      "elapsed_sec": 296.8
+    }
+  ]
+}

@@ -2,17 +2,17 @@
 End-to-end dynamic model growth experiment on English text datasets (WikiText-2 / AG News).
 
 Pipeline:
-  1. Data (Person 1): load wikitext-2-raw-v1 (or ag_news), tokenize with the GPT-2 BPE
+  1. Data: load wikitext-2-raw-v1 (or ag_news), tokenize with the GPT-2 BPE
      tokenizer, cut the token stream into fixed-length (seq_len) next-token-prediction
      samples for train / validation / test, and cache tokenized tensors in data/.
-  2. Orchestration (Person 1 & 2): support three training modes:
+  2. Orchestration: support three training modes:
        - 'grow' (default): train a small SimpleTransformer (d=256, L=4) with AdamW,
          pause at --growth-frac of training, call expand_width and expand_depth
          (method: identity | duplicate | stack) to form the large model (d=512, L=8),
          re-initialize the optimizer, and refine to completion.
        - 'small': train small baseline model m_0 (d=256, L=4) from scratch.
        - 'large': train large baseline model M_0 (d=512, L=8) from scratch.
-  3. Evaluation (Person 3): cross-entropy loss, perplexity, top-1 token prediction
+  3. Evaluation: cross-entropy loss, perplexity, top-1 token prediction
      error rate (on validation and test splits), and accumulated training FLOPs / TFLOPs,
      logged before growth, immediately after growth, periodically, and at completion.
 
